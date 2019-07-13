@@ -1,0 +1,97 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center
+        }
+
+        table {
+            width: 100%
+        }
+
+        td {
+            text-align: center
+        }
+    </style>
+</head>
+
+<body>
+    <p>
+        When is the next SpaceX launch?
+    </p>
+    <h1 id="date-text">
+    </h1>
+    <table>
+        <tbody>
+            <tr>
+                <td>Days</td>
+                <td>Hours</td>
+                <td>Minutes</td>
+                <td>Seconds</td>
+            </tr>
+            <tr>
+                <td>
+                    <h2 id='days-text'></h2>
+                </td>
+                <td>
+                    <h2 id='hours-text'></h2>
+                </td>
+                <td>
+                    <h2 id='minutes-text'></h2>
+                </td>
+                <td>
+                    <h2 id='seconds-text'></h2>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        const launchUrl = 'https://api.spacexdata.com/v3/launches/next'
+        const dateText = document.getElementById('date-text')
+        const daysText = document.getElementById('days-text')
+        const hoursText = document.getElementById('hours-text')
+        const minutesText = document.getElementById('minutes-text')
+        const secondsText = document.getElementById('seconds-text')
+        ajax_get(launchUrl, function (data) {
+            console.log(data)
+            const rawDate = data.launch_date_utc
+            const date = new Date(rawDate)
+            dateText.innerHTML = date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+            setInterval(function () {
+
+                const now = new Date().getTime();
+                const t = date - now;
+                const days = Math.floor(t / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((t % (1000 * 60)) / 1000);
+                daysText.innerHTML = days
+                hoursText.innerHTML = hours
+                minutesText.innerHTML = minutes
+                secondsText.innerHTML = seconds
+            }, 1000)
+        })
+
+        function ajax_get(url, callback) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    try {
+                        var data = JSON.parse(xmlhttp.responseText);
+                    } catch (err) {
+                        console.log(err.message + " in " + xmlhttp.responseText);
+                        return;
+                    }
+                    callback(data);
+                }
+            };
+
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        }
+    </script>
+</body>
+
+</html>
